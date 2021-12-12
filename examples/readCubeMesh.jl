@@ -19,5 +19,10 @@ for i in 1:length(connectivity)
     end
 end
 
-vtk_grid("cube.vtu", Array( nodesCoordMat' ) , cells) do vtk
+valores = Vector{String}(undef, length(connectivity))
+valores[1] = "caca"
+valores[2] = "jeje"
+
+vtk_grid("cube.vtu", Array( nodesCoordMat' ) , cells, ascii=true) do vtk
+#        vtk["date",VTKCellData()] = valores                         # metadata ("field data" in VTK)
 end
