@@ -23,6 +23,6 @@ Run the cube example
 julia> include(joinpath("examples","readCubeMesh.jl"))
 ```
 
-this generates a .vtu file which can be viewed using paraview
+This example script generates a .vtu file (using https://jipolanco.github.io/WriteVTK.jl/ ) which can be viewed using paraview
 
 ![cube](assets/cube.png)
