@@ -24,7 +24,6 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
     currLine = 2
     cmp( mshFileLines[currLine][1:3], "4.1" ) != 0 && error("version of file error")
 
-
     # ----------------------------------------------------
     # reads physical names
     currLine += 2
@@ -43,7 +42,7 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
             numsPhysProp[i]  = parse( Int32, aux ) # convert string to integer
             physicalNames[i] = aux2[2:end-1]       # remove quotes from start and end
 
-            verbosityBoolean && println("  property: ", i )
+            verbosityBoolean && println("  property ", i, ": ", physicalNames[i] )
         end
 
     end
@@ -62,15 +61,15 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
         [ vecsPhysicalPropsPerEntity[i] = zeros(entNumsPerDim[i],2) for i in 1:4 ]
 
         for indDim in 1:4
-             colNumTags  = 1+3+3*(indDim>1)+1
-             colTags     = 1+3+3*(indDim>1)+2
+             colNumTags  = 1+3+3*(indDim>1)+1 # this is the column number of the entry with the number of physical properties (or tags)
+             colTags     = 1+3+3*(indDim>1)+2 # this is the column number of the entry with the first physical property
 
             if entNumsPerDim[indDim] > 0
                 for i in 1:entNumsPerDim[indDim]
                     currLine += 1
                     aux = parse.( Int32, split( mshFileLines[currLine] ) )
-                    if aux[colNumTags] > 0
-                        vecsPhysicalPropsPerEntity[indDim][i,:] = [ aux[1] aux[colTags] ]
+                    if aux[colNumTags] > 0 # if there are physicalTags
+                        vecsPhysicalPropsPerEntity[indDim][i,:] = [ aux[1] aux[colTags] ] # assigns [element_tag physical_tag ]
                     else
                         vecsPhysicalPropsPerEntity[indDim][i,:] = [ aux[1] 0            ]
                     end
@@ -88,9 +87,15 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
 
         nodesCoordMat = zeros( numNodes, 3 )
 
+        # vector used to store the number of physical property of each node
+        #   positive is assigned, zero if not.
+        nodePhysNums  = zeros(Int32, numNodes )
+
         for block in 1:numEntBlocks
             currLine += 1
             aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
+            entityDimen   = aux[1]
+            entityTag     = aux[2]
             numNodesInEnt = aux[4]
             if numNodesInEnt > 0 # if there are nodes in the block
                 currLine += 1
@@ -100,18 +105,32 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
                     currLine += 1
                     nodesCoordMat[ indnode, :] = parse.( Float64, split( mshFileLines[ currLine ] ) )
                 end
+
+                # only saves physical tags for nodes defined as nodes (no inheritance)
+                if entityDimen == 0 # node created manualy
+                    dimenEntTags = vecsPhysicalPropsPerEntity[entityDimen+1][:,1]
+                    indEnt = findall( x->x==entityTag, dimenEntTags )
+                    nodePhysNums[ nodesTags] = vecsPhysicalPropsPerEntity[entityDimen+1][indEnt ,2]
+                end
+
             end
         end
     end # if - nodes block
 
+
     # ----------------------------------------------------
     currLine += 2
     if cmp( mshFileLines[ currLine ][2:5], "Elem" ) == 0
+        verbosityBoolean && println("Elements found. Reading ... ")
         currLine += 1
         aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
 
         numEntBlocks = aux[1]
         numElems     = aux[2]
+
+        # vector used to store the number of physical property of each element
+        #   positive is assigned, zero if not.
+        elemPhysNums = zeros(Int32, numElems )
 
         connectivity = Vector{Vector{Int64}}(undef, numElems)
 
@@ -120,18 +139,16 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
             dimOfBlock, _, _, numElemInBlock = parse.( Int32, split( mshFileLines[ currLine ] ) )
 
             if numElemInBlock > 0 # if there are elements in the block
-                print("aux", aux)
                 for i in 1:numElemInBlock
                     currLine += 1
                     aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
-                    println("aux1: ", aux[1] )
                     connectivity[ aux[1] ] = aux[2:end]
                 end
             end
         end
     end # if - elements block
 
-    return nodesCoordMat, connectivity, physicalNames
+    return nodesCoordMat, connectivity, physicalNames, nodePhysNums, elemPhysNums
 end # function
 
 export MshFileReader
