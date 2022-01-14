@@ -76,6 +76,7 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
                 end
             end
         end
+        verbosityBoolean && print( "\n vec phys: ", vecsPhysicalPropsPerEntity,"\n\n")
     end # if - entities block
 
 
@@ -123,10 +124,7 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
     if cmp( mshFileLines[ currLine ][2:5], "Elem" ) == 0
         verbosityBoolean && println("Elements found. Reading ... ")
         currLine += 1
-        aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
-
-        numEntBlocks = aux[1]
-        numElems     = aux[2]
+        numEntBlocks, numElems, _, _ = parse.( Int32, split( mshFileLines[ currLine ] ) )
 
         # vector used to store the number of physical property of each element
         #   positive is assigned, zero if not.
@@ -136,19 +134,32 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
 
         for block in 1:numEntBlocks
             currLine += 1
-            dimOfBlock, _, _, numElemInBlock = parse.( Int32, split( mshFileLines[ currLine ] ) )
+            dimOfBlock, entityTag, _, numElemInBlock = parse.( Int32, split( mshFileLines[ currLine ] ) )
 
+print("\n block:",block)
+
+            elemInds = []
             if numElemInBlock > 0 # if there are elements in the block
                 for i in 1:numElemInBlock
+
+                    print("\n element:",i)
+
                     currLine += 1
                     aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
+                    print(aux)
                     connectivity[ aux[1] ] = aux[2:end]
+                    push!(elemInds, aux[1] )
                 end
             end
+print("\n\nelem inds", elemInds)
+            dimenEntTags = vecsPhysicalPropsPerEntity[ dimOfBlock+1 ][:,1]
+            indEnt = findall( x->x==entityTag, dimenEntTags )
+            elemPhysNums[ elemInds ] .= vecsPhysicalPropsPerEntity[ dimOfBlock+1 ][indEnt ,2]
+
         end
     end # if - elements block
 
-    return nodesCoordMat, connectivity, physicalNames, nodePhysNums, elemPhysNums
+    return nodesCoordMat, connectivity, physicalNames, elemPhysNums
 end # function
 
 export MshFileReader

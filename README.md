@@ -1,6 +1,9 @@
 # MshReader.jl
-a minimal msh mesh format file reader
+A minimal msh mesh format file reader.
 
+## Scope
+
+The goal and scope of this package is to provide a function to read .msh files generated with (http://gmsh.info).
 
 ## Developer's guide
 
@@ -17,5 +20,9 @@ $ julia --project=.
 
 Run the cube example
 ```julia
-julia> include("examples/readCubeMesh.jl")
+julia> include(joinpath("examples","readCubeMesh.jl"))
 ```
+
+this generates a .vtu file which can be viewed using paraview
+
+![cube](assets/cube.png)
