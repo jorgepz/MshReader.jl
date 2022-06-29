@@ -36,3 +36,6 @@ end
 vtk_grid("cube.vtu", Array( nodesCoordMat' ) , cells, ascii=true) do vtk
     vtk["MEBI_params"] = MEBIs
 end
+
+
+export MshFileReader
