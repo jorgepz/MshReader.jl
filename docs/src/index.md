@@ -1,8 +1,14 @@
-# Hello
+```@meta
+CurrentModule = MshReader
+```
 
+# MshReader
 
-# MshFileReader.jl Documentation
+Documentation for [MshReader](https://github.com/jorgepz/MshReader.jl).
 
-```@docs
-MshFileReader(x)
+```@index
+```
+
+```@autodocs
+Modules = [MshReader]
 ```
