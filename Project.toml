@@ -1,7 +1,7 @@
 name = "MshReader"
 uuid = "64cd2da2-d71d-431a-81e3-4cf84ef169dd"
 authors = ["Jorge Pérez Zerpa"]
-version = "0.1.1"
+version = "0.1.0"
 
 [compat]
 julia = "1"
