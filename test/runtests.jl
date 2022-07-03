@@ -10,4 +10,8 @@ using Test
 
     @test cmp( physicalNames[ elemPhysNums[1]], "point_prop_1" ) == 0
 
+    tmp_location = download("https://github.com/ONSAS/ONSAS.m/raw/master/examples/uniaxialExtension/geometry_uniaxialExtension.msh")
+
+    nodesCoordMat, connectivity, physicalNames, elemPhysNums = MshFileReader( tmp_location )
+
 end
