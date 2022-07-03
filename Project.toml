@@ -7,6 +7,7 @@ version = "0.1.0"
 WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
 
 [compat]
+WriteVTK = "1"
 julia = "1"
 
 [extras]
