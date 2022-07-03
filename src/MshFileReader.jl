@@ -1,12 +1,12 @@
 """
-  MshFileReader
-function for reading gmsh's mesh format files http://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format
+Function for reading gmsh's mesh format files http://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format
+
     Input:
         - mshFilename: the name of the .msh file to be read
+
     Output:
         - nodesMat: matrix with 4 columns: [x y z physicalTag]
-        - conecMat: matrix with 5 columns: [ n1 n2 n3 n4 physicalTag ]
-            for elements with less than four nodes 0 is used as node index.
+        - conecMat: matrix with 5 columns: [ n1 n2 n3 n4 physicalTag ] for elements with less than four nodes 0 is used as node index.
         - physicalNames: cell with strings of physical names.
 
     Assumptions:
@@ -50,7 +50,7 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = false )
     # ----------------------------------------------------
     currLine += 2
     if cmp( mshFileLines[ currLine ][2:7], "Entiti" ) == 0
-        verbosityBoolean && println("Entities found. Reading ... ")
+        verbosityBoolean && println("-----\nEntities found. Reading ... ")
 
         currLine += 1
         entNumsPerDim = parse.( Int32, split( mshFileLines[ currLine ]) )
@@ -84,6 +84,8 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = false )
         currLine += 1
         numEntBlocks, numNodes = parse.( Int32, split( mshFileLines[ currLine ] ) )[1:2]
 
+        verbosityBoolean && print( "blocks", numEntBlocks, " ", numNodes)
+
         nodesCoordMat = zeros( numNodes, 3 )
 
         # vector used to store the number of physical property of each node
@@ -97,8 +99,13 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = false )
             entityTag     = aux[2]
             numNodesInEnt = aux[4]
             if numNodesInEnt > 0 # if there are nodes in the block
-                currLine += 1
-                nodesTags = parse.( Int32, split( mshFileLines[ currLine ] ) )
+                nodesTags = []
+                for auxind in (1:numNodesInEnt)
+                    currLine += 1
+                    push!( nodesTags, parse.( Int32, split( mshFileLines[ currLine ] ) )[1] )
+                end
+
+                verbosityBoolean && print( "nodes: ", nodesTags)
 
                 for indnode in nodesTags
                     currLine += 1
