@@ -1,13 +1,14 @@
 name = "MshReader"
 uuid = "64cd2da2-d71d-431a-81e3-4cf84ef169dd"
 authors = ["Jorge Pérez Zerpa"]
-version = "0.1.0"
+version = "0.1.1"
 
 [compat]
 julia = "1"
 
 [extras]
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Downloads"]
