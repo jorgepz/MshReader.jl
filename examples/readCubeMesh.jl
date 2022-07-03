@@ -1,5 +1,10 @@
 using MshReader
-using WriteVTK
+
+try 
+    using WriteVTK
+catch
+    error("install WriteVTK package to run this example.")
+end
 
 # runs MshFileReader
 nodesCoordMat, connectivity, physicalNames, elemPhysNums = MshFileReader( joinpath("examples","cube.msh") )
@@ -36,6 +41,3 @@ end
 vtk_grid("cube.vtu", Array( nodesCoordMat' ) , cells, ascii=true) do vtk
     vtk["MEBI_params"] = MEBIs
 end
-
-
-export MshFileReader

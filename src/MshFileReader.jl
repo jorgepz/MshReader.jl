@@ -14,7 +14,7 @@ function for reading gmsh's mesh format files http://gmsh.info/doc/texinfo/gmsh.
         - maximum of one physical tag per entity
         - maximum number of nodes per element: 4 (linear tetrahedron)
 """
-function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
+function MshFileReader( mshFilename; verbosityBoolean::Bool = false )
 
     mshFileLines = open( readlines, mshFilename, "r")
 
@@ -57,7 +57,7 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
 
         #    matsPhysicalPropsPerEntity = cell(4) ;
         vecsPhysicalPropsPerEntity = Vector{Matrix{Int32}}(undef,4)
-        [ vecsPhysicalPropsPerEntity[i] = zeros(entNumsPerDim[i],2) for i in 1:4 ]
+        [ vecsPhysicalPropsPerEntity[i] = zeros( entNumsPerDim[i], 2 ) for i in 1:4 ]
 
         for indDim in 1:4
              colNumTags  = 1+3+3*(indDim>1)+1 # this is the column number of the entry with the number of physical properties (or tags)
@@ -66,18 +66,17 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
             if entNumsPerDim[indDim] > 0
                 for i in 1:entNumsPerDim[indDim]
                     currLine += 1
-                    aux = parse.( Int32, split( mshFileLines[currLine] ) )
+                    aux = parse.( Float64, split( mshFileLines[currLine] ) )
                     if aux[colNumTags] > 0 # if there are physicalTags
-                        vecsPhysicalPropsPerEntity[indDim][i,:] = [ aux[1] aux[colTags] ] # assigns [element_tag physical_tag ]
+                        vecsPhysicalPropsPerEntity[indDim][i,:] = Int.( [ aux[1] aux[colTags] ] ) # assigns [element_tag physical_tag ]
                     else
-                        vecsPhysicalPropsPerEntity[indDim][i,:] = [ aux[1] 0            ]
+                        vecsPhysicalPropsPerEntity[indDim][i,:] = Int.( [ aux[1] 0            ] )
                     end
                 end
             end
         end
         verbosityBoolean && print( "\n vec phys: ", vecsPhysicalPropsPerEntity,"\n\n")
     end # if - entities block
-
 
     # ----------------------------------------------------
     currLine += 2
@@ -135,22 +134,21 @@ function MshFileReader( mshFilename; verbosityBoolean::Bool = true )
             currLine += 1
             dimOfBlock, entityTag, _, numElemInBlock = parse.( Int32, split( mshFileLines[ currLine ] ) )
 
-print("\n block:",block)
+            verbosityBoolean && print("\n block:",block)
 
             elemInds = []
             if numElemInBlock > 0 # if there are elements in the block
                 for i in 1:numElemInBlock
 
-                    print("\n element:",i)
+                    verbosityBoolean && print("\n element:",i)
 
                     currLine += 1
                     aux = parse.( Int32, split( mshFileLines[ currLine ] ) )
-                    print(aux)
                     connectivity[ aux[1] ] = aux[2:end]
                     push!(elemInds, aux[1] )
                 end
             end
-print("\n\nelem inds", elemInds)
+            verbosityBoolean && print("\n\nelem inds", elemInds)
             dimenEntTags = vecsPhysicalPropsPerEntity[ dimOfBlock+1 ][:,1]
             indEnt = findall( x->x==entityTag, dimenEntTags )
             elemPhysNums[ elemInds ] .= vecsPhysicalPropsPerEntity[ dimOfBlock+1 ][indEnt ,2]
