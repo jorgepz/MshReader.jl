@@ -14,8 +14,8 @@ using Downloads:download
     end
 
     @testset "Uniaxialextension problem tests" begin
-
-        tmp_location = download("https://github.com/ONSAS/ONSAS.m/raw/master/examples/uniaxialExtension/geometry_uniaxialExtension.msh")
+        url = "https://github.com/ONSAS/ONSAS.m/raw/master/examples/uniaxialExtension/geometry_uniaxialExtension.msh"
+        tmp_location = download( url )
 
         nodesCoordMat, connectivity, physicalNames, elemPhysNums = MshFileReader( tmp_location; verbosityBoolean=false )
 

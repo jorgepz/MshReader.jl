@@ -12,6 +12,15 @@ A minimal msh mesh format file reader.
 
 The goal and scope of this package is to provide a function to read .msh files generated with (http://gmsh.info).
 
+
+## Usage example
+
+The main function and command consists in the following call:
+```julia
+nodesCoordMat, connectivity, physicalNames, elemPhysNums = MshFileReader( "path to msh file.msh")
+```
+
+
 ## Developer's guide
 
 Clone the repo
