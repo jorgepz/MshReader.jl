@@ -5,9 +5,10 @@ Function for reading gmsh's mesh format files http://gmsh.info/doc/texinfo/gmsh.
         - mshFilename: the name of the .msh file to be read
 
     Output:
-        - nodesMat: matrix with 4 columns: [x y z physicalTag]
-        - conecMat: matrix with 5 columns: [ n1 n2 n3 n4 physicalTag ] for elements with less than four nodes 0 is used as node index.
-        - physicalNames: cell with strings of physical names.
+        - nodesMat: matrix with 3 columns: [x y z]
+        - conecMat: vector with the connectivity of the elements: [ [n1 n2 n3], [n1 n2 n3 n4] ... ] 
+        - physicalNames: vector with strings of physical names.
+        - elemPhysNums: vector with indexes 
 
     Assumptions:
         - physical names are saved as strings
